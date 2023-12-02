@@ -8,7 +8,6 @@ import {
   FlatList,
   Alert,
   Pressable,
-  ScrollView,
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { FontAwesome } from "@expo/vector-icons";
@@ -37,37 +36,10 @@ export default ResultScreen = ({ route, navigation }) => {
     if (!saving) {
       console.log("contact IDS here:", contactIds);
       console.log("Saved contacts: ", savedContacts);
-      // fetchContacts();
     }
   }, [saving]);
-  // useEffect(() => {
-  //   if(!fetching){
-  //     console.log("results arr:", resultsArr);
-
-  //   }
-  // },[fetching])
-  // const fetchContacts = async () => {
-  //   const { status } = await Contacts.requestPermissionsAsync();
-  //   if (status === "granted") {
-  //     contactIds.forEach(async (id) => {
-  //       try {
-  //         console.log("Fetching contact:", id);
-  //         Contacts.getContactByIdAsync(id, {
-  //           fields: [Contacts.Fields.Name],
-  //         }).then((data) => {
-  //           console.log(data);
-  //           setResultsArr((resultsArr) => [...resultsArr, data]);
-  //         });
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     });
-  //     setFetching(false)
-  //   }
-  // };
   const processText = () => {
     const lines = text.split(/[\r\n]+/); // [] means any of the characters in between; newline is \r\n in windows
-    // console.log("Lines:", lines);
     lines.forEach((item) => {
       const keyValue = item.split(/[:.]\s+/);
       contacts[keyValue[0].trim()] = keyValue[1]
@@ -124,10 +96,9 @@ export default ResultScreen = ({ route, navigation }) => {
           console.error(error);
         }
       }
-    } //FIXME: else set success state to false
-    // setTimeout(() => {
-    //   setSaving(false);
-    // }, 1000);
+    } else {
+      setSuccess(false);
+    }
     setSaving(false);
   };
   const handleEdit = async (id) => {
@@ -160,22 +131,21 @@ export default ResultScreen = ({ route, navigation }) => {
             data={savedContacts}
             renderItem={({ item }) => (
               <View style={styles.contactContainer}>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    justifyContent: "space-between",
-                  }}
-                >
+                <FontAwesome name="user-o" size={24} color="black" />
+                <View style={{ marginLeft: "4%" }}>
                   <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
-                  <Pressable onPress={() => handleEdit(item.id)}>
-                    <FontAwesome name="edit" size={24} color="black" />
-                  </Pressable>
+                  {item.phoneNumbers.map((eachNum, idx) => (
+                    <Text key={idx} style={{ alignSelf: "flex-start" }}>
+                      {eachNum?.number}
+                    </Text>
+                  ))}
                 </View>
-                {item.phoneNumbers.map((eachNum, idx) => (
-                  <Text key={idx} style={{ alignSelf: "flex-start" }}>
-                    {eachNum?.number}
-                  </Text>
-                ))}
+                <Pressable
+                  onPress={() => handleEdit(item.id)}
+                  style={{ position: "absolute", right: "5%" }}
+                >
+                  <FontAwesome name="edit" size={24} color="black" />
+                </Pressable>
               </View>
             )}
             keyExtractor={(item) => item.id}
@@ -226,12 +196,14 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   contactContainer: {
+    flexDirection: "row",
+    alignItems: "center",
     backgroundColor: "#A6CF98",
     minWidth: "90%",
     padding: 8,
     borderRadius: 4,
     borderWidth: 2,
-    borderColor: "#9BA4B5",
+    borderColor: "#fff",
   },
   resultText: {
     color: "#9BA4B5",
@@ -248,7 +220,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#363636",
     marginVertical: 30,
     alignSelf: "center",
-    // borderColor: "#cccccc",
-    // borderWidth: 1
+    borderColor: "#cccccc",
+    borderWidth: 1
   },
 });

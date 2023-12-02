@@ -3,34 +3,26 @@ import {
   View,
   Text,
   StyleSheet,
-  Button,
-  Image,
   Pressable,
   SafeAreaView,
 } from "react-native";
-import axios from "axios";
 import * as ImagePicker from "expo-image-picker";
 import { EvilIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-//import * as FileSystem from "expo-file-system";
 import { useState, useEffect } from "react";
 
 import { REACT_APP_API_KEY } from "@env";
 
-// import DetectText from "../src/index";
 
 export default function App({ navigation }) {
   const [imageBase64, setImageBase64] = useState(null);
-  // const [image, setImage] = useState(null);
-  const [convertedText, setConvertedText] = useState("");
-
-  const apiURL = `https://vision.googleapis.com/v1/images:annotate?key=${REACT_APP_API_KEY}`;
 
   useEffect(() => {
     if (imageBase64) {
       navigation.navigate("Edit", { image: imageBase64 });
     }
   }, [imageBase64]);
+
   const pickFromGallery = async () => {
     try {
       let result = await ImagePicker.launchImageLibraryAsync({
@@ -40,10 +32,8 @@ export default function App({ navigation }) {
         base64: true,
       });
       if (!result.canceled) {
-        // console.log(result.assets[0].uri);
         setImageBase64(result.assets[0].base64);
       }
-      // navigation.navigate("Edit",{imageBase64: imageBase64})
     } catch (error) {
       console.error("Error in selecting image from gallery:", error);
     }
@@ -56,47 +46,13 @@ export default function App({ navigation }) {
         base64: true,
       });
       if (!result.canceled) {
-        //console.log(result.assets[0].uri);
         setImageBase64(result.assets[0].base64);
       }
     } catch (error) {
       console.error("Error selecting image from camera", error);
     }
   };
-  // const analyzeImage = async () => {
-  //   try {
-  //     if (!imageBase64) {
-  //       alert("Please select an image");
-  //       return;
-  //     }
-  //     // const base64Image = await FileSystem.readAsStringAsync(image, {
-  //     //   encoding: FileSystem.EncodingType.Base64,
-  //     // });
-  //     const requestData = {
-  //       requests: [
-  //         {
-  //           image: {
-  //             content: imageBase64,
-  //           },
-  //           features: [
-  //             {
-  //               type: "DOCUMENT_TEXT_DETECTION",
-  //             },
-  //           ],
-  //         },
-  //       ],
-  //     };
-  //     const response = await axios.post(apiURL, requestData);
-  //     const data = response.data;
-  //     console.log(data.responses[0].fullTextAnnotation.text);
-  //     setConvertedText(data.responses[0].fullTextAnnotation.text);
-  //     navigation.navigate("Edit",{text: convertedText})
-  //   } catch (error) {
-  //     console.error("Error analyzing image:", error);
-  //     alert("Error analyzing image. Please try again");
-  //   }
-  // };
-
+  
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.text}>Pick image to import contacts</Text>
@@ -130,7 +86,7 @@ const styles = StyleSheet.create({
   },
   pickContainer: {
     height: 200,
-    marginTop: 10,
+    marginTop: 20,
     flexDirection: "row",
     justifyContent: "space-between",
   },

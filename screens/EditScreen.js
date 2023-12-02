@@ -12,11 +12,10 @@ import {
 } from "react-native";
 import axios from "axios";
 import { FontAwesome } from '@expo/vector-icons';;
-import { REACT_APP_API_KEY } from "@env";
+// import { REACT_APP_API_KEY } from "@env";
 
 export default EditScreen = ({ route, navigation }) => {
   const { image } = route.params;
-  // const [editText, setEditText] = useState(text)
   const [convertedText, setConvertedText] = useState("");
   const [loading, setLoading] = useState(true);
   const [isFocused, setFocused] = useState(false)
@@ -35,9 +34,6 @@ export default EditScreen = ({ route, navigation }) => {
         Alert.alert("Please select an image");
         return;
       }
-      // const base64Image = await FileSystem.readAsStringAsync(image, {
-      //   encoding: FileSystem.EncodingType.Base64,
-      // });
       const requestData = {
         requests: [
           {
@@ -56,12 +52,10 @@ export default EditScreen = ({ route, navigation }) => {
       const data = response.data;
       console.log(data.responses[0].fullTextAnnotation?.text);
       setConvertedText(data.responses[0].fullTextAnnotation?.text);
-      // setTimeout(() => {setLoading(false)},1000)
       setLoading(false);
-      // navigation.navigate("Edit",{text: convertedText})
     } catch (error) {
       console.error("Error analyzing image:", error);
-      alert("Error analyzing image. Please try again");
+      Alert.alert("Error analyzing image. Please try again");
     }
   };
   if (loading) {
