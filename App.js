@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Pressable, Text } from "react-native";
 
 import HomeScreen from "./screens/HomeScreen";
-import ConfirmScreen from "./screens/ConfirmScreen";
 import EditScreen from "./screens/EditScreen";
 import ResultScreen from "./screens/ResultScreen";
 
@@ -24,17 +23,6 @@ export default function App() {
           name="Home"
           component={HomeScreen}
           options={{ title: "ContactsWriter" }}
-        />
-        <Stack.Screen
-          name="Confirm"
-          component={ConfirmScreen}
-          options={({ route, navigation }) => ({
-            headerRight: () => (
-              <Pressable onPress={navigation.navigate("Edit")}>
-                <Text>Confirm</Text>
-              </Pressable>
-            ),
-          })}
         />
         <Stack.Screen
           name="Edit"

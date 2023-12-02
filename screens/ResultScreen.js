@@ -124,7 +124,7 @@ export default ResultScreen = ({ route, navigation }) => {
           console.error(error);
         }
       }
-    }
+    } //FIXME: else set success state to false
     // setTimeout(() => {
     //   setSaving(false);
     // }, 1000);
@@ -171,7 +171,7 @@ export default ResultScreen = ({ route, navigation }) => {
                     <FontAwesome name="edit" size={24} color="black" />
                   </Pressable>
                 </View>
-                {item.phoneNumbers.map((eachNum,idx) => (
+                {item.phoneNumbers.map((eachNum, idx) => (
                   <Text key={idx} style={{ alignSelf: "flex-start" }}>
                     {eachNum?.number}
                   </Text>
@@ -183,7 +183,10 @@ export default ResultScreen = ({ route, navigation }) => {
             ListHeaderComponent={<View style={{ height: 20 }} />}
             ItemSeparatorComponent={<View style={{ height: 16 }} />}
             ListFooterComponent={
-              <Pressable style={styles.homePressable} onPress={() => navigation.navigate("Home")}>
+              <Pressable
+                style={styles.homePressable}
+                onPress={() => navigation.navigate("Home")}
+              >
                 <FontAwesome name="home" size={18} color="white" />
 
                 <Text style={styles.text}> Back Home </Text>
@@ -195,9 +198,12 @@ export default ResultScreen = ({ route, navigation }) => {
         <View style={styles.resultContainer}>
           <Entypo name="emoji-sad" size={100} color="#9BA4B5" />
           <Text style={styles.resultText}>Unable to save contacts</Text>
-          <Pressable style={styles.homePressable} onPress={() => navigation.navigate("Home")}>
-            <FontAwesome name="backward" size={18} color="white" />
-            <Text style={styles.text}>  Try again</Text>
+          <Pressable
+            style={styles.homePressable}
+            onPress={() => navigation.navigate("Home")}
+          >
+            <FontAwesome name="backward" size={16} color="white" />
+            <Text style={styles.text}> Try again</Text>
           </Pressable>
         </View>
       )}

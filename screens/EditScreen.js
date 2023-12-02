@@ -7,7 +7,8 @@ import {
   TextInput,
   ActivityIndicator,
   Pressable,
-  Alert
+  Alert,
+  ScrollView,
 } from "react-native";
 import axios from "axios";
 import { FontAwesome } from '@expo/vector-icons';;
@@ -18,6 +19,7 @@ export default EditScreen = ({ route, navigation }) => {
   // const [editText, setEditText] = useState(text)
   const [convertedText, setConvertedText] = useState("");
   const [loading, setLoading] = useState(true);
+  const [isFocused, setFocused] = useState(false)
 
   const apiURL = `https://vision.googleapis.com/v1/images:annotate?key=${process.env.REACT_APP_API_KEY}`;
 
@@ -64,25 +66,28 @@ export default EditScreen = ({ route, navigation }) => {
   };
   if (loading) {
     return (
-      <SafeAreaView style={[styles.container, styles.loadingContainer]}>
+      <SafeAreaView style={[styles.safeContainer, styles.loadingContainer]}>
         <ActivityIndicator size="large" color="gray" />
         <Text style={styles.text}>Loading...</Text>
       </SafeAreaView>
     );
   }
   return (
-    <SafeAreaView style={styles.container}>
-      <Text style={[styles.confirmPrompt, styles.text]}>
+    <SafeAreaView style={styles.safeContainer}>
+      <ScrollView contentContainerStyle={styles.container}>
+        <Text style={[styles.confirmPrompt, styles.text]}>
         Please re-verify the detected text.
       </Text>
       <TextInput
         multiline={true}
-        style={styles.textInput}
+        style={[styles.textInput,{borderColor: isFocused ? "#D0F288" : "#5FBDFF"}]}
         value={convertedText}
         onChangeText={setConvertedText}
         numberOfLines={20}
         autoCorrect={false}
         placeholder="No text detected"
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
       />
       <View style={styles.helpTextContainer}>
         <Text style={styles.helpText}>Please ensure that</Text>
@@ -96,15 +101,21 @@ export default EditScreen = ({ route, navigation }) => {
         <Text style={styles.text}>Proceed to Save </Text>
         <FontAwesome name="arrow-circle-right" size={18} color="white" />
       </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeContainer: {
     flex: 1,
     backgroundColor: "#1e1e1e",
     alignItems: "center",
+  },
+  container: {
+    width: "100%",
+    alignItems: "center",
+    paddingHorizontal: "5%"
   },
   loadingContainer: {
     justifyContent: "center",
@@ -118,15 +129,15 @@ const styles = StyleSheet.create({
     marginTop: 30,
   },
   textInput: {
-    height: 400,
-    width: "90%",
+    height: 380,
+    minWidth: "96%",
+    maxWidth: 380,
     backgroundColor: "#f5f5f5",
     fontSize: 13,
     borderRadius: 4,
     padding: 8,
     textAlignVertical: "top",
     borderWidth: 3,
-    borderColor: "lightblue",
     marginTop: 10,
   },
   helpTextContainer: {
@@ -147,8 +158,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderRadius: 4,
     backgroundColor: "#363636",
-    marginVertical: 30,
-    // borderColor: "#cccccc",
-    // borderWidth: 1,
+    marginVertical: 40,
+    borderColor: "#cccccc",
+    borderWidth: 1,
   },
 });
