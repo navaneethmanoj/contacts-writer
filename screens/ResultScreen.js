@@ -104,6 +104,27 @@ export default ResultScreen = ({ route, navigation }) => {
   const handleEdit = async (id) => {
     try {
       await Contacts.presentFormAsync(id);
+      try {
+        const editedContact = await Contacts.getContactByIdAsync(id, [
+          Contacts.Fields.Name,
+          Contacts.Fields.PhoneNumbers,
+        ]);
+        setSavedContacts((savedContacts) =>
+          savedContacts.map((item) => {
+            if (item.id === id) {
+              return {
+                ...item,
+                name: editedContact.name,
+                phoneNumbers: editedContact.phoneNumbers,
+              };
+            }
+            return item
+          })
+        );
+      } catch (error) {
+        Alert.alert("Unable to display edited contact");
+        console.log("Error fetching edited contact:", error);
+      }
     } catch (error) {
       console.log("Error editing contact:", error);
       return Alert.alert(
@@ -221,6 +242,6 @@ const styles = StyleSheet.create({
     marginVertical: 30,
     alignSelf: "center",
     borderColor: "#cccccc",
-    borderWidth: 1
+    borderWidth: 1,
   },
 });
