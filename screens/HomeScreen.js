@@ -6,17 +6,22 @@ import {
   Pressable,
   SafeAreaView,
 } from "react-native";
+import { useFocusEffect } from "@react-navigation/native";
 import * as ImagePicker from "expo-image-picker";
 import { EvilIcons } from "@expo/vector-icons";
 import { FontAwesome } from "@expo/vector-icons";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 import { REACT_APP_API_KEY } from "@env";
 
 
 export default function App({ navigation }) {
   const [imageBase64, setImageBase64] = useState(null);
-
+  
+  useFocusEffect(useCallback(() => {
+    setImageBase64(null)
+    return 
+  },[]))
   useEffect(() => {
     if (imageBase64) {
       navigation.navigate("Edit", { image: imageBase64 });
@@ -35,7 +40,7 @@ export default function App({ navigation }) {
         setImageBase64(result.assets[0].base64);
       }
     } catch (error) {
-      console.error("Error in selecting image from gallery:", error);
+      console.log("Error in selecting image from gallery:", error);
     }
   };
   const pickFromCamera = async () => {
@@ -49,7 +54,7 @@ export default function App({ navigation }) {
         setImageBase64(result.assets[0].base64);
       }
     } catch (error) {
-      console.error("Error selecting image from camera", error);
+      console.log("Error selecting image from camera", error);
     }
   };
   

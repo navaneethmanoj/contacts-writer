@@ -54,7 +54,7 @@ export default EditScreen = ({ route, navigation }) => {
       setConvertedText(data.responses[0].fullTextAnnotation?.text);
       setLoading(false);
     } catch (error) {
-      console.error("Error analyzing image:", error);
+      console.log("Error analyzing image:", error);
       Alert.alert("Error analyzing image. Please try again");
     }
   };
@@ -135,12 +135,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
   helpTextContainer: {
-    marginHorizontal: 10,
+    marginHorizontal: 8,
     alignItems:"flex-start",
     marginTop: 18
   },
   helpText: {
-    fontSize: 12,
+    fontSize: 14,
     color: "#f5f5f5",
     lineHeight: 18
   },

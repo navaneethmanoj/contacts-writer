@@ -9,7 +9,8 @@
       [
         "expo-image-picker",
         {
-          "photosPermission": "The app needs access to your photos to detect contacts in them."
+          "photosPermission": "$(PRODUCT_NAME) needs access to your photos to detect contacts in them.",
+          "cameraPermission": "$(PRODUCT_NAME) needs access to your camera to detect contacts in images"
         }
       ],
       [

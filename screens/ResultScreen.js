@@ -5,9 +5,11 @@ import {
   Text,
   StyleSheet,
   ActivityIndicator,
-  FlatList,
   Alert,
+  ScrollView,
   Pressable,
+  Linking,
+  Platform,
 } from "react-native";
 import * as Contacts from "expo-contacts";
 import { FontAwesome } from "@expo/vector-icons";
@@ -18,16 +20,16 @@ export default ResultScreen = ({ route, navigation }) => {
   var contacts = {};
   const [contactIds, setContactIds] = useState([]);
   const [savedContacts, setSavedContacts] = useState([]);
+  const [errContacts, setErrContacts] = useState([]);
   const [saving, setSaving] = useState(true);
-  const [success, setSuccess] = useState(true);
+  const [permissionError, setPermissionError] = useState(false);
 
   useEffect(() => {
+    // TO BE CHANGED TO useFocusEffect
     if (!text) {
-      return Alert.alert(
-        "Nothing there to save there!",
-        "Please re-select an image",
-        [{ text: "Go Back", onPress: () => navigation.navigate("Home") }]
-      );
+      return Alert.alert("Nothing to save there!", "Please re-select image", [
+        { text: "Go Back", onPress: () => navigation.navigate("Home") },
+      ]);
     }
     processText();
     saveContacts();
@@ -38,13 +40,23 @@ export default ResultScreen = ({ route, navigation }) => {
       console.log("Saved contacts: ", savedContacts);
     }
   }, [saving]);
+
+  const handleOpenSettings = () => {
+    if (Platform.OS === "ios") {
+      Linking.openURL("app-settings:");
+    } else {
+      Linking.openSettings();
+    }
+  };
   const processText = () => {
     const lines = text.split(/[\r\n]+/); // [] means any of the characters in between; newline is \r\n in windows
-    lines.forEach((item) => {
-      const keyValue = item.split(/[:.]\s+/);
-      contacts[keyValue[0].trim()] = keyValue[1]
-        ?.replace(/[/.-\s]/g, "")
-        .split(","); // g - match every ocurrence
+    lines.forEach((item, idx) => {
+      if (item !== "") {
+        const keyValue = item.split(/[:.]\s+/);
+        contacts[keyValue[0].trim()] = keyValue[1]
+          ?.replace(/[/.-\s]/g, "")
+          .split(","); // g - match every ocurrence
+      }
     });
     console.log("Contacts:", contacts);
   };
@@ -56,12 +68,15 @@ export default ResultScreen = ({ route, navigation }) => {
     if (status === "granted") {
       for (key in contacts) {
         console.log("Key:", key, " Value:", contacts[key]);
+        if (!key || !contacts[key] || contacts[key][0] === "") {
+          setErrContacts((errContacts) => [
+            ...errContacts,
+            `${key} ${contacts[key] || ""}`,
+          ]); //changes undefined to "" and saves in errContacts
+          console.log("Error saving contact:", key, contacts[key]);
+          continue;
+        }
         try {
-          if (!key || !contacts[key]) {
-            setSuccess(false);
-            continue;
-          }
-
           let phoneNumbers = [];
           contacts[key].forEach((number) => {
             if (/^[0-9+\-]+$/.test(number)) {
@@ -69,6 +84,12 @@ export default ResultScreen = ({ route, navigation }) => {
                 label: "mobile",
                 number: number,
               });
+            } else {
+              setErrContacts((errContacts) => [
+                ...errContacts,
+                `${key}: ${number}`,
+              ]);
+              console.log("Error saving contact:", key, number);
             }
           });
           if (!phoneNumbers.length) continue;
@@ -91,13 +112,26 @@ export default ResultScreen = ({ route, navigation }) => {
             ]);
           });
         } catch (error) {
-          setSuccess(false);
-          console.error("Error saving contact:", key, contacts[key]);
-          console.error(error);
+          setErrContacts((errContacts) => [
+            ...errContacts,
+            key + contacts[key],
+          ]);
+          console.log("Error saving contact:", key, contacts[key]);
+          console.log(error);
         }
       }
     } else {
-      setSuccess(false);
+      Alert.alert(
+        "Permission required",
+        "ContactWriter needs permission to save contacts",
+        [
+          {
+            text: "Go to Settings",
+            onPress: () => handleOpenSettings(),
+          },
+        ]
+      );
+      setPermissionError(true);
     }
     setSaving(false);
   };
@@ -118,7 +152,7 @@ export default ResultScreen = ({ route, navigation }) => {
                 phoneNumbers: editedContact.phoneNumbers,
               };
             }
-            return item
+            return item;
           })
         );
       } catch (error) {
@@ -144,14 +178,19 @@ export default ResultScreen = ({ route, navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {success ? (
-        <View style={styles.resultContainer}>
-          <FontAwesome name="check-circle" size={50} color="#9BA4B5" />
-          <Text style={styles.resultText}>Successfully saved contacts</Text>
-          <FlatList
-            data={savedContacts}
-            renderItem={({ item }) => (
-              <View style={styles.contactContainer}>
+      <ScrollView>
+        {permissionError ? (
+          <View style={styles.resultContainer}>
+            <Entypo name="emoji-sad" size={100} color="#9BA4B5" />
+            <Text style={styles.resultText}>Unable to save contacts</Text>
+          </View>
+        ) : null}
+        {savedContacts?.length ? (
+          <View style={styles.resultContainer}>
+            <FontAwesome name="check-circle" size={70} color="#9BA4B5" />
+            <Text style={styles.resultText}>Successfully saved contacts</Text>
+            {savedContacts.map((item) => (
+              <View key={item.id} style={styles.contactContainer}>
                 <FontAwesome name="user-o" size={24} color="black" />
                 <View style={{ marginLeft: "4%" }}>
                   <Text style={{ fontWeight: "bold" }}>{item.name}</Text>
@@ -168,36 +207,34 @@ export default ResultScreen = ({ route, navigation }) => {
                   <FontAwesome name="edit" size={24} color="black" />
                 </Pressable>
               </View>
-            )}
-            keyExtractor={(item) => item.id}
-            extraData={savedContacts}
-            ListHeaderComponent={<View style={{ height: 20 }} />}
-            ItemSeparatorComponent={<View style={{ height: 16 }} />}
-            ListFooterComponent={
-              <Pressable
-                style={styles.homePressable}
-                onPress={() => navigation.navigate("Home")}
+            ))}
+          </View>
+        ) : null}
+        {errContacts?.length ? (
+          <View style={styles.resultContainer}>
+            <Entypo name="emoji-sad" size={70} color="#9BA4B5" />
+            <Text style={styles.resultText}>Unable to save these</Text>
+            {errContacts.map((item, idx) => (
+              <View
+                key={idx}
+                style={[
+                  styles.contactContainer,
+                  { backgroundColor: "#FF8F8F" },
+                ]}
               >
-                <FontAwesome name="home" size={18} color="white" />
-
-                <Text style={styles.text}> Back Home </Text>
-              </Pressable>
-            }
-          />
-        </View>
-      ) : (
-        <View style={styles.resultContainer}>
-          <Entypo name="emoji-sad" size={100} color="#9BA4B5" />
-          <Text style={styles.resultText}>Unable to save contacts</Text>
-          <Pressable
-            style={styles.homePressable}
-            onPress={() => navigation.navigate("Home")}
-          >
-            <FontAwesome name="backward" size={16} color="white" />
-            <Text style={styles.text}> Try again</Text>
-          </Pressable>
-        </View>
-      )}
+                <Text style={{ fontWeight: "bold" }}>{item}</Text>
+              </View>
+            ))}
+          </View>
+        ) : null}
+        <Pressable
+          style={styles.homePressable}
+          onPress={() => navigation.navigate("Home")}
+        >
+          <FontAwesome name="home" size={18} color="white" />
+          <Text style={styles.text}> Back Home </Text>
+        </Pressable>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -213,8 +250,15 @@ const styles = StyleSheet.create({
   text: {
     color: "#f5f5f5",
   },
+  resultText: {
+    color: "#9BA4B5",
+    marginTop: 10,
+    marginBottom: 20,
+    fontSize: 18,
+  },
   resultContainer: {
     alignItems: "center",
+    marginTop: 18,
   },
   contactContainer: {
     flexDirection: "row",
@@ -225,11 +269,7 @@ const styles = StyleSheet.create({
     borderRadius: 4,
     borderWidth: 2,
     borderColor: "#fff",
-  },
-  resultText: {
-    color: "#9BA4B5",
-    marginVertical: 20,
-    fontSize: 18,
+    marginVertical: 8,
   },
   homePressable: {
     width: 180,
