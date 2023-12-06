@@ -40,7 +40,7 @@ export default function App({ navigation }) {
         setImageBase64(result.assets[0].base64);
       }
     } catch (error) {
-      console.log("Error in selecting image from gallery:", error);
+      Alert.alert("Image selection failed")
     }
   };
   const pickFromCamera = async () => {
@@ -54,7 +54,7 @@ export default function App({ navigation }) {
         setImageBase64(result.assets[0].base64);
       }
     } catch (error) {
-      console.log("Error selecting image from camera", error);
+      Alert.alert("Image selection failed")
     }
   };
   

@@ -50,11 +50,9 @@ export default EditScreen = ({ route, navigation }) => {
       };
       const response = await axios.post(apiURL, requestData);
       const data = response.data;
-      console.log(data.responses[0].fullTextAnnotation?.text);
       setConvertedText(data.responses[0].fullTextAnnotation?.text);
       setLoading(false);
     } catch (error) {
-      console.log("Error analyzing image:", error);
       Alert.alert("Error analyzing image. Please try again");
     }
   };

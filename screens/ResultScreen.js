@@ -36,22 +36,6 @@ export default ResultScreen = ({ route, navigation }) => {
       saveContacts();
     }, [])
   );
-  // useEffect(() => {
-  //   // TO BE CHANGED TO useFocusEffect
-  //   if (!text) {
-  //     return Alert.alert("Nothing to save there!", "Please re-select image", [
-  //       { text: "Go Back", onPress: () => navigation.navigate("Home") },
-  //     ]);
-  //   }
-  //   processText();
-  //   saveContacts();
-  // }, []);
-  useEffect(() => {
-    if (!saving) {
-      console.log("contact IDS here:", contactIds);
-      console.log("Saved contacts: ", savedContacts);
-    }
-  }, [saving]);
 
   const handleOpenSettings = () => {
     if (Platform.OS === "ios") {
@@ -84,7 +68,7 @@ export default ResultScreen = ({ route, navigation }) => {
         setErrContacts((errContacts) => [...errContacts, line]);
       }
     });
-    console.log("Contacts:", contacts);
+    // console.log("Contacts:", contacts);
   };
   const saveContacts = async () => {
     if (!contacts) {
@@ -93,13 +77,13 @@ export default ResultScreen = ({ route, navigation }) => {
     const { status } = await Contacts.requestPermissionsAsync();
     if (status === "granted") {
       for (key in contacts) {
-        console.log("Key:", key, " Value:", contacts[key]);
+        // console.log("Key:", key, " Value:", contacts[key]);
         if (!key || !contacts[key] || contacts[key][0] === "") {
           setErrContacts((errContacts) => [
             ...errContacts,
             `${key} ${contacts[key] || ""}`,
           ]); //changes undefined to "" and saves in errContacts
-          console.log("Error saving contact:", key, contacts[key]);
+          //console.log("Error saving contact:", key, contacts[key]);
           continue;
         }
         try {
@@ -122,13 +106,13 @@ export default ResultScreen = ({ route, navigation }) => {
               number: number,
             });
           });
-          console.log(phoneNumbers);
+          // console.log(phoneNumbers);
           const contact = {
             [Contacts.Fields.FirstName]: key,
             // [Contacts.Fields.ContactType]: [Contacts.ContactTypes.Person],
             [Contacts.Fields.PhoneNumbers]: phoneNumbers,
           };
-          console.log("saving contact:", contact);
+          // console.log("saving contact:", contact);
           Contacts.addContactAsync(contact).then((contactId) => {
             setContactIds((contactIds) => [...contactIds, contactId]);
             setSavedContacts((savedContacts) => [
@@ -145,8 +129,8 @@ export default ResultScreen = ({ route, navigation }) => {
             ...errContacts,
             key + contacts[key],
           ]);
-          console.log("Error saving contact:", key, contacts[key]);
-          console.log(error);
+          // console.log("Error saving contact:", key, contacts[key]);
+          // console.log(error);
         }
       }
     } else {
@@ -186,10 +170,10 @@ export default ResultScreen = ({ route, navigation }) => {
         );
       } catch (error) {
         Alert.alert("Unable to display edited contact");
-        console.log("Error fetching edited contact:", error);
+        // console.log("Error fetching edited contact:", error);
       }
     } catch (error) {
-      console.log("Error editing contact:", error);
+      // console.log("Error editing contact:", error);
       return Alert.alert(
         "Unable to edit contact",
         "Please try from the contacts app"
