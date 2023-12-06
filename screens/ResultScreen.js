@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   View,
@@ -14,6 +14,7 @@ import {
 import * as Contacts from "expo-contacts";
 import { FontAwesome } from "@expo/vector-icons";
 import { Entypo } from "@expo/vector-icons";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default ResultScreen = ({ route, navigation }) => {
   const { text } = route.params;
@@ -24,16 +25,27 @@ export default ResultScreen = ({ route, navigation }) => {
   const [saving, setSaving] = useState(true);
   const [permissionError, setPermissionError] = useState(false);
 
-  useEffect(() => {
-    // TO BE CHANGED TO useFocusEffect
-    if (!text) {
-      return Alert.alert("Nothing to save there!", "Please re-select image", [
-        { text: "Go Back", onPress: () => navigation.navigate("Home") },
-      ]);
-    }
-    processText();
-    saveContacts();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (!text) {
+        return Alert.alert("Nothing to save there!", "Please re-select image", [
+          { text: "Go Back", onPress: () => navigation.navigate("Home") },
+        ]);
+      }
+      processText();
+      saveContacts();
+    }, [])
+  );
+  // useEffect(() => {
+  //   // TO BE CHANGED TO useFocusEffect
+  //   if (!text) {
+  //     return Alert.alert("Nothing to save there!", "Please re-select image", [
+  //       { text: "Go Back", onPress: () => navigation.navigate("Home") },
+  //     ]);
+  //   }
+  //   processText();
+  //   saveContacts();
+  // }, []);
   useEffect(() => {
     if (!saving) {
       console.log("contact IDS here:", contactIds);
@@ -53,7 +65,7 @@ export default ResultScreen = ({ route, navigation }) => {
     var contactCount = 0;
     var prevCount;
     lines.forEach((line) => {
-      if (line === "") 
+      if (!line.trim().length) 
         return;
       prevCount = contactCount;
       for (idx = 0; idx < line.length; idx++) {
@@ -230,7 +242,7 @@ export default ResultScreen = ({ route, navigation }) => {
         {errContacts?.length ? (
           <View style={styles.resultContainer}>
             <Entypo name="emoji-sad" size={70} color="#9BA4B5" />
-            <Text style={styles.resultText}>Unable to save these</Text>
+            <Text style={styles.resultText}>Unable to save the following</Text>
             {errContacts.map((item, idx) => (
               <View
                 key={idx}
