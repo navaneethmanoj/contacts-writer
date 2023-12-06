@@ -50,12 +50,26 @@ export default ResultScreen = ({ route, navigation }) => {
   };
   const processText = () => {
     const lines = text.split(/[\r\n]+/); // [] means any of the characters in between; newline is \r\n in windows
-    lines.forEach((item, idx) => {
-      if (item !== "") {
-        const keyValue = item.split(/[:.]\s+/);
-        contacts[keyValue[0].trim()] = keyValue[1]
-          ?.replace(/[/.-\s]/g, "")
-          .split(","); // g - match every ocurrence
+    var contactCount = 0;
+    var prevCount;
+    lines.forEach((line) => {
+      if (line === "") 
+        return;
+      prevCount = contactCount;
+      for (idx = 0; idx < line.length; idx++) {
+        if (line[idx] === ":" || line[idx] === " ") {
+          const value = line.substring(idx + 1);
+          if (!/[a-zA-z]+/.test(value)) {
+            // TODO: if one out of many phone numbers has an alphabet,it gets rejected
+            const key = line.substring(0, idx).trim();
+            contacts[key] = value.replace(/[:\s]/g, "").split(",");
+            contactCount += 1;
+            break;
+          }
+        }
+      }
+      if (prevCount === contactCount) {
+        setErrContacts((errContacts) => [...errContacts, line]);
       }
     });
     console.log("Contacts:", contacts);
@@ -79,20 +93,23 @@ export default ResultScreen = ({ route, navigation }) => {
         try {
           let phoneNumbers = [];
           contacts[key].forEach((number) => {
-            if (/^[0-9+\-]+$/.test(number)) {
-              phoneNumbers.push({
-                label: "mobile",
-                number: number,
-              });
-            } else {
-              setErrContacts((errContacts) => [
-                ...errContacts,
-                `${key}: ${number}`,
-              ]);
-              console.log("Error saving contact:", key, number);
-            }
+            // if (!(/[a-zA-z]+/.test(number))) { //TEST ALREADY PERFORMED IN processText fn
+            //   phoneNumbers.push({
+            //     label: "mobile",
+            //     number: number,
+            //   });
+            // } else {
+            //   setErrContacts((errContacts) => [
+            //     ...errContacts,
+            //     `${key}: ${number}`,
+            //   ]);
+            //   console.log("Error saving contact:", key, number);
+            // }
+            phoneNumbers.push({
+              label: "mobile",
+              number: number,
+            });
           });
-          if (!phoneNumbers.length) continue;
           console.log(phoneNumbers);
           const contact = {
             [Contacts.Fields.FirstName]: key,

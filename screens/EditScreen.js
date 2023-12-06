@@ -86,7 +86,8 @@ export default EditScreen = ({ route, navigation }) => {
       <View style={styles.helpTextContainer}>
         <Text style={styles.helpText}>Please ensure that</Text>
         <Text style={styles.helpText}>{`\u25CF Each contact is on a different line.`}</Text>
-        <Text style={styles.helpText}>{`\u25CF Name and numbers are separated by a colon `}</Text>
+        <Text style={styles.helpText}>{`\u25CF Name and numbers are separated by a space`}</Text>
+        <Text style={styles.helpText}>{`\u25CF Phone numbers do not contain alphabets`}</Text>
       </View>
       <Pressable
         style={styles.confirmPressable}
